@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="hi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mera Music</title>
+<style>
+  :root { --bg:#0b0b0f; --card:#17171f; --card2:#20202b; --text:#f2f2f5; --muted:#9a9aaa; --accent:#1ed760; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--bg); color:var(--text); font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif; padding-bottom:110px; }
+  header { position:sticky; top:0; z-index:5; background:rgba(11,11,15,.95); backdrop-filter:blur(8px); padding:12px 14px; border-bottom:1px solid #22222c; }
+  .top { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+  h1 { font-size:20px; color:var(--accent); margin-right:auto; }
+  .seg { display:flex; background:var(--card); border-radius:999px; padding:3px; }
+  .seg button { border:0; background:none; color:var(--muted); padding:7px 12px; border-radius:999px; font-size:13px; cursor:pointer; }
+  .seg button.on { background:var(--accent); color:#000; font-weight:600; }
+  .gear { background:var(--card); border:0; color:var(--text); width:36px; height:36px; border-radius:50%; font-size:16px; cursor:pointer; }
+  form { display:flex; gap:8px; margin-top:10px; }
+  input[type=text] { flex:1; background:var(--card); border:1px solid #2a2a36; color:var(--text); padding:11px 14px; border-radius:999px; font-size:15px; outline:none; min-width:0; }
+  input[type=text]:focus { border-color:var(--accent); }
+  form button { background:var(--accent); color:#000; border:0; font-weight:700; padding:0 18px; border-radius:999px; cursor:pointer; }
+  main { padding:14px; max-width:900px; margin:0 auto; }
+  h2 { font-size:15px; margin:16px 0 8px; color:var(--muted); font-weight:600; }
+  .chips { display:flex; gap:8px; overflow-x:auto; padding-bottom:4px; scrollbar-width:none; }
+  .chips::-webkit-scrollbar { display:none; }
+  .chip { flex:none; background:var(--card2); border:0; color:var(--text); padding:8px 14px; border-radius:999px; font-size:13px; cursor:pointer; }
+  .chip:hover { background:#2b2b3a; }
+  .daily { width:100%; background:linear-gradient(135deg,#1ed76033,#6a5cff33); border:1px solid #2f2f3f; color:var(--text); padding:14px; border-radius:14px; text-align:left; cursor:pointer; font-size:15px; }
+  .daily small { display:block; color:var(--muted); margin-top:3px; font-size:12px; }
+  #status { color:var(--muted); font-size:13px; margin:12px 0; min-height:18px; }
+  .row { display:flex; gap:12px; align-items:center; padding:8px; border-radius:10px; cursor:pointer; }
+  .row:hover, .row.now { background:var(--card); }
+  .row.now .t { color:var(--accent); }
+  .row img { width:52px; height:52px; border-radius:8px; object-fit:cover; background:var(--card2); flex:none; }
+  .meta { min-width:0; }
+  .t { font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .a { font-size:12px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  #video { position:fixed; right:12px; bottom:100px; width:240px; aspect-ratio:16/9; background:#000; border-radius:10px; overflow:hidden; z-index:6; box-shadow:0 6px 24px #000a; display:none; }
+  #video.show { display:block; }
+  #bar { position:fixed; left:0; right:0; bottom:0; z-index:7; background:#12121a; border-top:1px solid #23232e; padding:10px 14px; display:flex; align-items:center; gap:12px; }
+  #bar img { width:46px; height:46px; border-radius:8px; object-fit:cover; background:var(--card2); }
+  #bar .meta { flex:1; }
+  .ctl { display:flex; align-items:center; gap:6px; }
+  .ctl button { background:none; border:0; color:var(--text); font-size:20px; width:40px; height:40px; cursor:pointer; border-radius:50%; }
+  .ctl .play { background:var(--accent); color:#000; font-size:18px; }
+  #modal { position:fixed; inset:0; background:#000c; z-index:20; display:none; align-items:center; justify-content:center; padding:16px; }
+  #modal.show { display:flex; }
+  .box { background:var(--card); border-radius:16px; padding:18px; width:100%; max-width:440px; }
+  .box h3 { margin-bottom:8px; }
+  .box p { color:var(--muted); font-size:13px; line-height:1.5; margin-bottom:10px; }
+  .box label { font-size:13px; display:block; margin:10px 0 4px; }
+  .box input { width:100%; border-radius:10px; }
+  .box .btns { display:flex; gap:8px; margin-top:14px; justify-content:flex-end; }
+  .box button { border:0; padding:10px 16px; border-radius:999px; cursor:pointer; background:var(--card2); color:var(--text); }
+  .box button.go { background:var(--accent); color:#000; font-weight:700; }
+  @media (max-width:600px){ #video { width:150px; bottom:96px; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="top">
+    <h1>🎵 Mera Music</h1>
+    <div class="seg">
+      <button id="srcYT" class="on">Popular (YouTube)</button>
+      <button id="srcJM">Free (Jamendo)</button>
+    </div>
+    <button class="gear" id="gear" title="API keys">⚙</button>
+  </div>
+  <form id="f">
+    <input type="text" id="q" placeholder="Gaana ya artist ka naam likho..." autocomplete="off">
+    <button>Search</button>
+  </form>
+</header>
+
+<main>
+  <h2>Aaj ke liye</h2>
+  <button class="daily" id="daily">✨ Aaj ki Playlist<small id="dailySub"></small></button>
+
+  <h2>Playlists</h2>
+  <div class="chips" id="plChips"></div>
+
+  <h2>Bhasha / Language</h2>
+  <div class="chips" id="langChips"></div>
+
+  <div id="status"></div>
+  <div id="list"></div>
+</main>
+
+<div id="video"><div id="yt"></div></div>
+
+<div id="bar">
+  <img id="cover" alt="">
+  <div class="meta"><div class="t" id="now">Kuch chalao bhai</div><div class="a" id="nowA"></div></div>
+  <div class="ctl">
+    <button id="prev">⏮</button>
+    <button id="pp" class="play">▶</button>
+    <button id="next">⏭</button>
+  </div>
+</div>
+<audio id="audio"></audio>
+
+<div id="modal">
+  <div class="box">
+    <h3>API keys (free)</h3>
+    <p>Keys sirf tumhare browser me save hoti hain. Dono free hain, card nahi lagta.</p>
+    <label>YouTube Data API key</label>
+    <input type="text" id="kYT" placeholder="AIza...">
+    <label>Jamendo client ID</label>
+    <input type="text" id="kJM" placeholder="e.g. 1a2b3c4d">
+    <div class="btns"><button id="kCancel">Band karo</button><button class="go" id="kSave">Save</button></div>
+  </div>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const store = {
+  get(k){ try { return localStorage.getItem(k) || ''; } catch(e){ return ''; } },
+  set(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
+};
+
+let source = store.get('src') || 'yt';
+let queue = [], idx = -1, ytPlayer = null, ytReady = false, pendingYT = null;
+
+const PLAYLISTS = [
+  { n:'🔥 Trending',  yt:'trending new songs this week', jm:'' , order:'popularity_week' },
+  { n:'🎬 Bollywood', yt:'latest bollywood songs', jm:'bollywood' },
+  { n:'😌 Chill',     yt:'chill relaxing hindi songs', jm:'chill' },
+  { n:'💪 Workout',   yt:'workout gym motivation songs', jm:'workout' },
+  { n:'💔 Sad',       yt:'sad hindi songs', jm:'sad' },
+  { n:'💕 Romantic',  yt:'romantic hindi songs', jm:'romantic' },
+  { n:'🎉 Party',     yt:'party dance songs', jm:'party' },
+  { n:'🧘 Lo-fi',     yt:'lofi hindi songs', jm:'lofi' },
+];
+const LANGS = [
+  ['Hindi','hindi'],['Bhojpuri','bhojpuri'],['Marathi','marathi'],['Telugu','telugu'],
+  ['Bengali','bengali'],['Tamil','tamil'],['Punjabi','punjabi'],['Malayalam','malayalam'],
+  ['Kannada','kannada'],['Gujarati','gujarati'],['English','english'],['K-pop','kpop'],['Spanish','spanish']
+];
+
+function dailyInfo(){
+  const h = new Date().getHours();
+  if (h < 5)  return { t:'Raat ki neend wali', yt:'night calm songs hindi', jm:'ambient' };
+  if (h < 12) return { t:'Subah ki fresh energy', yt:'morning fresh energy songs hindi', jm:'happy' };
+  if (h < 17) return { t:'Dopahar ka focus', yt:'focus lofi study songs', jm:'lofi' };
+  if (h < 21) return { t:'Shaam ke hits', yt:'evening latest hit songs hindi', jm:'pop' };
+  return { t:'Raat ka chill', yt:'late night chill hindi songs', jm:'chill' };
+}
+
+function decode(s){ return new DOMParser().parseFromString(s,'text/html').documentElement.textContent; }
+function status(m){ $('#status').textContent = m; }
+
+function setSource(s){
+  source = s; store.set('src', s);
+  $('#srcYT').classList.toggle('on', s==='yt');
+  $('#srcJM').classList.toggle('on', s==='jm');
+}
+
+async function searchYT(q){
+  const key = store.get('kYT');
+  if (!key) { openModal(); throw new Error('Pehle YouTube API key daalo (⚙ button).'); }
+  const u = 'https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&videoCategoryId=10&videoEmbeddable=true&maxResults=25&q='
+    + encodeURIComponent(q) + '&key=' + encodeURIComponent(key);
+  const r = await fetch(u); const d = await r.json();
+  if (d.error) throw new Error('YouTube: ' + d.error.message);
+  return (d.items||[]).map(i => ({
+    src:'yt', id:i.id.videoId, title:decode(i.snippet.title), artist:decode(i.snippet.channelTitle),
+    thumb:(i.snippet.thumbnails.medium||i.snippet.thumbnails.default).url
+  }));
+}
+
+async function searchJM(q, order){
+  const id = store.get('kJM');
+  if (!id) { openModal(); throw new Error('Pehle Jamendo client ID daalo (⚙ button).'); }
+  let u = 'https://api.jamendo.com/v3.0/tracks/?format=json&limit=25&audioformat=mp32&include=musicinfo&client_id=' + encodeURIComponent(id);
+  if (q) u += '&search=' + encodeURIComponent(q);
+  u += '&order=' + (order || 'popularity_total');
+  const r = await fetch(u); const d = await r.json();
+  if (d.headers && d.headers.status === 'failed') throw new Error('Jamendo: ' + d.headers.error_message);
+  return (d.results||[]).filter(t => t.audio).map(t => ({
+    src:'jm', url:t.audio, title:t.name, artist:t.artist_name, thumb:t.image || t.album_image
+  }));
+}
+
+async function run(ytQ, jmQ, order){
+  status('Dhoondh raha hoon...');
+  $('#list').innerHTML = '';
+  try {
+    const items = source === 'yt' ? await searchYT(ytQ) : await searchJM(jmQ, order);
+    queue = items; idx = -1;
+    if (!items.length) { status('Kuch nahi mila. Doosra naam try karo.'); return; }
+    status(items.length + ' gaane mile');
+    render();
+  } catch(e){ status(e.message); }
+}
+
+function render(){
+  const list = $('#list'); list.innerHTML = '';
+  queue.forEach((t,i) => {
+    const row = document.createElement('div');
+    row.className = 'row' + (i===idx ? ' now' : '');
+    const img = document.createElement('img'); img.src = t.thumb || ''; img.loading = 'lazy';
+    const meta = document.createElement('div'); meta.className = 'meta';
+    const a = document.createElement('div'); a.className = 't'; a.textContent = t.title;
+    const b = document.createElement('div'); b.className = 'a'; b.textContent = t.artist;
+    meta.append(a,b); row.append(img,meta);
+    row.onclick = () => play(i);
+    list.append(row);
+  });
+}
+
+function stopAll(){
+  $('#audio').pause();
+  if (ytPlayer && ytReady) { try { ytPlayer.stopVideo(); } catch(e){} }
+}
+
+function play(i){
+  if (i < 0 || i >= queue.length) return;
+  idx = i; const t = queue[i];
+  stopAll();
+  $('#now').textContent = t.title; $('#nowA').textContent = t.artist;
+  $('#cover').src = t.thumb || '';
+  document.querySelectorAll('.row').forEach((r,k) => r.classList.toggle('now', k===i));
+  if (t.src === 'yt') {
+    $('#video').classList.add('show');
+    if (ytReady) ytPlayer.loadVideoById(t.id); else pendingYT = t.id;
+  } else {
+    $('#video').classList.remove('show');
+    const a = $('#audio'); a.src = t.url; a.play().catch(()=>{});
+  }
+  setPP(true);
+}
+
+function setPP(playing){ $('#pp').textContent = playing ? '⏸' : '▶'; }
+function next(){ if (queue.length) play((idx+1) % queue.length); }
+function prev(){ if (queue.length) play((idx-1+queue.length) % queue.length); }
+
+$('#next').onclick = next; $('#prev').onclick = prev;
+$('#audio').onended = next;
+$('#audio').onplay = () => setPP(true);
+$('#audio').onpause = () => setPP(false);
+$('#pp').onclick = () => {
+  const t = queue[idx]; if (!t) { if (queue.length) play(0); return; }
+  if (t.src === 'jm') { const a = $('#audio'); a.paused ? a.play() : a.pause(); }
+  else if (ytReady) { ytPlayer.getPlayerState() === 1 ? ytPlayer.pauseVideo() : ytPlayer.playVideo(); }
+};
+
+// YouTube IFrame API
+const s = document.createElement('script'); s.src = 'https://www.youtube.com/iframe_api'; document.head.append(s);
+window.onYouTubeIframeAPIReady = () => {
+  ytPlayer = new YT.Player('yt', {
+    width:'100%', height:'100%', playerVars:{ playsinline:1, rel:0 },
+    events:{
+      onReady: () => { ytReady = true; if (pendingYT) { ytPlayer.loadVideoById(pendingYT); pendingYT = null; } },
+      onStateChange: e => { if (e.data === 0) next(); if (e.data === 1) setPP(true); if (e.data === 2) setPP(false); },
+      onError: () => next()
+    }
+  });
+};
+
+// UI wiring
+$('#f').onsubmit = e => { e.preventDefault(); const q = $('#q').value.trim(); if (q) run(q + ' song', q); };
+$('#srcYT').onclick = () => setSource('yt');
+$('#srcJM').onclick = () => setSource('jm');
+
+PLAYLISTS.forEach(p => {
+  const b = document.createElement('button'); b.className = 'chip'; b.textContent = p.n;
+  b.onclick = () => run(p.yt, p.jm, p.order);
+  $('#plChips').append(b);
+});
+LANGS.forEach(([n,k]) => {
+  const b = document.createElement('button'); b.className = 'chip'; b.textContent = n;
+  b.onclick = () => run('latest ' + k + ' songs', k);
+  $('#langChips').append(b);
+});
+
+const d = dailyInfo();
+$('#dailySub').textContent = d.t + ' • tap karke chalao';
+$('#daily').onclick = () => { const x = dailyInfo(); run(x.yt, x.jm); };
+
+// Keys modal
+function openModal(){ $('#kYT').value = store.get('kYT'); $('#kJM').value = store.get('kJM'); $('#modal').classList.add('show'); }
+$('#gear').onclick = openModal;
+$('#kCancel').onclick = () => $('#modal').classList.remove('show');
+$('#kSave').onclick = () => { store.set('kYT', $('#kYT').value.trim()); store.set('kJM', $('#kJM').value.trim()); $('#modal').classList.remove('show'); status('Keys save ho gayi. Ab kuch search karo.'); };
+
+setSource(source);
+if (!store.get('kYT') && !store.get('kJM')) status('Shuru karne ke liye ⚙ dabao aur API key daalo.');
+</script>
+</body>
+</html>
