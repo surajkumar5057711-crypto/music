@@ -3,231 +3,284 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#07070d">
 <title>Mera Music</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-  :root { --bg:#0b0b0f; --card:#17171f; --card2:#20202b; --text:#f2f2f5; --muted:#9a9aaa; --accent:#1ed760; }
-  * { box-sizing:border-box; margin:0; padding:0; }
-  body { background:var(--bg); color:var(--text); font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif; padding-bottom:110px; }
-  header { position:sticky; top:0; z-index:5; background:rgba(11,11,15,.95); backdrop-filter:blur(8px); padding:12px 14px; border-bottom:1px solid #22222c; }
-  .top { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
-  h1 { font-size:20px; color:var(--accent); margin-right:auto; }
-  .seg { display:flex; background:var(--card); border-radius:999px; padding:3px; }
-  .seg button { border:0; background:none; color:var(--muted); padding:7px 12px; border-radius:999px; font-size:13px; cursor:pointer; }
-  .seg button.on { background:var(--accent); color:#000; font-weight:600; }
-  .gear { background:var(--card); border:0; color:var(--text); width:36px; height:36px; border-radius:50%; font-size:16px; cursor:pointer; }
+  :root { --bg:#07070d; --glass:rgba(255,255,255,.06); --line:rgba(255,255,255,.09); --text:#f6f6fb; --muted:#9b9bb4;
+          --a1:#2cff9a; --a2:#7c5cff; --a3:#ff4d8d; --a4:#ffb347; }
+  * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+  html { scroll-behavior:smooth; }
+  body { background:var(--bg); color:var(--text); font-family:'Outfit',system-ui,-apple-system,Segoe UI,Roboto,sans-serif; overflow-x:hidden; }
+
+  /* aurora background */
+  .aurora { position:fixed; inset:0; z-index:-1; overflow:hidden; }
+  .aurora i { position:absolute; width:340px; height:340px; border-radius:50%; filter:blur(80px); opacity:.45; animation:drift 18s ease-in-out infinite alternate; }
+  .aurora i:nth-child(1){ background:var(--a2); left:-90px; top:-60px; }
+  .aurora i:nth-child(2){ background:var(--a3); right:-120px; top:25%; animation-duration:22s; opacity:.30; }
+  .aurora i:nth-child(3){ background:var(--a1); left:15%; bottom:-140px; animation-duration:26s; opacity:.22; }
+  @keyframes drift { to { transform:translate(60px,80px) scale(1.2); } }
+
+  header { position:sticky; top:0; z-index:8; padding:12px 14px; background:rgba(7,7,13,.72); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); border-bottom:1px solid var(--line); }
+  .brand { display:flex; align-items:center; gap:10px; }
+  .logo { width:36px; height:36px; border-radius:12px; display:flex; align-items:flex-end; justify-content:center; gap:3px; padding:9px 8px;
+          background:linear-gradient(135deg,var(--a1),var(--a2) 60%,var(--a3)); box-shadow:0 6px 20px #7c5cff66; }
+  .logo i { width:4px; background:#07070d; border-radius:2px; animation:eq 1s ease-in-out infinite; }
+  .logo i:nth-child(1){ height:40%; } .logo i:nth-child(2){ height:90%; animation-delay:.25s } .logo i:nth-child(3){ height:60%; animation-delay:.5s }
+  @keyframes eq { 0%,100%{ transform:scaleY(.45) } 50%{ transform:scaleY(1) } }
+  .logo i { transform-origin:bottom; }
+  h1 { font-size:22px; font-weight:800; letter-spacing:.2px; background:linear-gradient(90deg,#fff,#c9b8ff 50%,var(--a1)); -webkit-background-clip:text; background-clip:text; color:transparent; }
   form { display:flex; gap:8px; margin-top:10px; }
-  input[type=text] { flex:1; background:var(--card); border:1px solid #2a2a36; color:var(--text); padding:11px 14px; border-radius:999px; font-size:15px; outline:none; min-width:0; }
-  input[type=text]:focus { border-color:var(--accent); }
-  form button { background:var(--accent); color:#000; border:0; font-weight:700; padding:0 18px; border-radius:999px; cursor:pointer; }
-  main { padding:14px; max-width:900px; margin:0 auto; }
-  h2 { font-size:15px; margin:16px 0 8px; color:var(--muted); font-weight:600; }
-  .chips { display:flex; gap:8px; overflow-x:auto; padding-bottom:4px; scrollbar-width:none; }
-  .chips::-webkit-scrollbar { display:none; }
-  .chip { flex:none; background:var(--card2); border:0; color:var(--text); padding:8px 14px; border-radius:999px; font-size:13px; cursor:pointer; }
-  .chip:hover { background:#2b2b3a; }
-  .daily { width:100%; background:linear-gradient(135deg,#1ed76033,#6a5cff33); border:1px solid #2f2f3f; color:var(--text); padding:14px; border-radius:14px; text-align:left; cursor:pointer; font-size:15px; }
-  .daily small { display:block; color:var(--muted); margin-top:3px; font-size:12px; }
-  #status { color:var(--muted); font-size:13px; margin:12px 0; min-height:18px; }
-  .row { display:flex; gap:12px; align-items:center; padding:8px; border-radius:10px; cursor:pointer; }
-  .row:hover, .row.now { background:var(--card); }
-  .row.now .t { color:var(--accent); }
-  .row img { width:52px; height:52px; border-radius:8px; object-fit:cover; background:var(--card2); flex:none; }
-  .meta { min-width:0; }
-  .t { font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .a { font-size:12px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  #video { position:fixed; right:12px; bottom:100px; width:240px; aspect-ratio:16/9; background:#000; border-radius:10px; overflow:hidden; z-index:6; box-shadow:0 6px 24px #000a; display:none; }
-  #video.show { display:block; }
-  #bar { position:fixed; left:0; right:0; bottom:0; z-index:7; background:#12121a; border-top:1px solid #23232e; padding:10px 14px; display:flex; align-items:center; gap:12px; }
-  #bar img { width:46px; height:46px; border-radius:8px; object-fit:cover; background:var(--card2); }
-  #bar .meta { flex:1; }
-  .ctl { display:flex; align-items:center; gap:6px; }
-  .ctl button { background:none; border:0; color:var(--text); font-size:20px; width:40px; height:40px; cursor:pointer; border-radius:50%; }
-  .ctl .play { background:var(--accent); color:#000; font-size:18px; }
-  #modal { position:fixed; inset:0; background:#000c; z-index:20; display:none; align-items:center; justify-content:center; padding:16px; }
-  #modal.show { display:flex; }
-  .box { background:var(--card); border-radius:16px; padding:18px; width:100%; max-width:440px; }
-  .box h3 { margin-bottom:8px; }
-  .box p { color:var(--muted); font-size:13px; line-height:1.5; margin-bottom:10px; }
-  .box label { font-size:13px; display:block; margin:10px 0 4px; }
-  .box input { width:100%; border-radius:10px; }
-  .box .btns { display:flex; gap:8px; margin-top:14px; justify-content:flex-end; }
-  .box button { border:0; padding:10px 16px; border-radius:999px; cursor:pointer; background:var(--card2); color:var(--text); }
-  .box button.go { background:var(--accent); color:#000; font-weight:700; }
-  @media (max-width:600px){ #video { width:150px; bottom:96px; } }
+  .sw { flex:1; position:relative; min-width:0; }
+  .sw span { position:absolute; left:15px; top:50%; transform:translateY(-50%); opacity:.6; font-size:15px; }
+  input[type=text] { width:100%; background:var(--glass); border:1px solid var(--line); color:var(--text); padding:13px 16px 13px 42px; border-radius:16px; font:inherit; font-size:15px; outline:none; transition:.2s; }
+  input[type=text]:focus { border-color:var(--a2); box-shadow:0 0 0 3px #7c5cff30, 0 0 24px #7c5cff30; }
+  form button { background:linear-gradient(135deg,var(--a1),#14c97c); color:#04150c; border:0; font:inherit; font-weight:800; padding:0 20px; border-radius:16px; cursor:pointer; box-shadow:0 6px 18px #2cff9a40; }
+
+  main { padding:16px 14px; max-width:980px; margin:0 auto; }
+
+  /* hero */
+  .hero { width:100%; border:0; text-align:left; color:#fff; cursor:pointer; position:relative; overflow:hidden; border-radius:26px; padding:22px 20px 20px; min-height:178px; font:inherit;
+          background:linear-gradient(120deg,#6a3df0,#c13cd9,#ff5c8a,#ff9a5c); background-size:240% 240%; animation:flow 9s ease infinite; box-shadow:0 18px 50px #7c3df059; }
+  @keyframes flow { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
+  .hero::after { content:""; position:absolute; inset:0; background:radial-gradient(260px 160px at 85% 10%, #ffffff30, transparent); pointer-events:none; }
+  .hero small { display:block; font-size:12px; font-weight:600; letter-spacing:1.6px; text-transform:uppercase; opacity:.85; }
+  .hero b { display:block; font-size:26px; font-weight:800; line-height:1.1; margin:6px 0 14px; max-width:68%; }
+  .orb { position:absolute; right:14px; top:12px; font-size:66px; filter:drop-shadow(0 8px 18px #0006); animation:float 4s ease-in-out infinite; }
+  @keyframes float { 50%{ transform:translateY(-8px) rotate(5deg) } }
+  .wave { display:flex; align-items:center; gap:3px; height:26px; margin-bottom:14px; }
+  .wave i { width:3px; border-radius:2px; background:#ffffffcc; animation:wv 1.1s ease-in-out infinite; }
+  @keyframes wv { 0%,100%{ height:4px } 50%{ height:24px } }
+  .cta { display:inline-flex; gap:8px; align-items:center; background:#08080fcc; padding:10px 18px; border-radius:999px; font-size:14px; font-weight:700; backdrop-filter:blur(6px); }
+
+  h2 { font-size:16px; font-weight:700; margin:26px 2px 12px; display:flex; align-items:center; gap:8px; }
+  h2::after { content:""; flex:1; height:1px; background:linear-gradient(90deg,var(--line),transparent); }
+
+  .row { display:flex; gap:12px; overflow-x:auto; padding:2px 2px 8px; scrollbar-width:none; scroll-snap-type:x proximity; }
+  .row::-webkit-scrollbar { display:none; }
+
+  .mood { flex:none; width:104px; height:112px; border:0; border-radius:22px; color:#fff; cursor:pointer; position:relative; overflow:hidden; font:inherit; text-align:left; padding:12px; scroll-snap-align:start;
+          box-shadow:0 10px 24px #0006; transition:transform .18s; }
+  .mood:active { transform:scale(.94); }
+  .mood .e { font-size:34px; display:block; filter:drop-shadow(0 4px 8px #0005); }
+  .mood .n { position:absolute; left:12px; bottom:11px; font-weight:700; font-size:14px; }
+  .mood::after { content:""; position:absolute; right:-24px; top:-24px; width:80px; height:80px; border-radius:50%; background:#ffffff26; }
+
+  .lang { flex:none; display:flex; align-items:center; gap:9px; padding:7px 15px 7px 7px; border-radius:999px; background:var(--glass); border:1px solid var(--line); color:var(--text); font:inherit; font-size:14px; font-weight:500; cursor:pointer; transition:.15s; }
+  .lang:active { transform:scale(.95); }
+  .lang u { text-decoration:none; width:30px; height:30px; border-radius:50%; display:grid; place-items:center; font-size:14px; font-weight:700; color:#fff; }
+
+  #status { color:var(--muted); font-size:13px; margin:22px 2px 6px; min-height:18px; }
+
+  .feat { position:relative; border-radius:24px; overflow:hidden; cursor:pointer; margin-top:6px; box-shadow:0 14px 40px #0008; animation:up .5s both; }
+  .feat img { width:100%; aspect-ratio:16/9; object-fit:cover; display:block; background:#15151f; }
+  .feat::after { content:""; position:absolute; inset:0; background:linear-gradient(180deg,transparent 35%,#07070dee); }
+  .feat .txt { position:absolute; left:16px; right:70px; bottom:14px; z-index:2; }
+  .feat .tag { font-size:11px; font-weight:700; letter-spacing:1.4px; color:var(--a1); text-transform:uppercase; }
+  .feat .t { font-size:19px; font-weight:700; line-height:1.2; margin-top:4px; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+  .feat .a { font-size:13px; color:#c4c4d8; margin-top:3px; }
+  .pbtn { position:absolute; right:14px; bottom:14px; z-index:2; width:50px; height:50px; border-radius:50%; display:grid; place-items:center; background:var(--a1); color:#04150c; font-size:19px; box-shadow:0 8px 24px #2cff9a66; }
+
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(152px,1fr)); gap:14px; margin-top:14px; }
+  .tile { position:relative; cursor:pointer; border-radius:18px; overflow:hidden; background:var(--glass); border:1px solid var(--line); transition:transform .15s, border-color .2s; animation:up .5s both; }
+  .tile:active { transform:scale(.96); }
+  .tile .im { position:relative; }
+  .tile img { width:100%; aspect-ratio:16/9; object-fit:cover; display:block; background:#15151f; }
+  .tile .pl { position:absolute; right:8px; bottom:8px; width:30px; height:30px; border-radius:50%; background:#000a; backdrop-filter:blur(4px); display:grid; place-items:center; font-size:12px; }
+  .tile .info { padding:10px 11px 12px; }
+  .tile .t { font-size:13px; font-weight:500; line-height:1.3; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; min-height:34px; }
+  .tile .a { font-size:11.5px; color:var(--muted); margin-top:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .tile.now, .feat.now { box-shadow:0 0 0 2px var(--a1), 0 0 28px #2cff9a55; }
+  .tile.now .pl, .feat.now .pbtn { background:var(--a1); color:#04150c; }
+  @keyframes up { from { opacity:0; transform:translateY(14px) } to { opacity:1; transform:none } }
+
+  .sk { border-radius:18px; height:150px; background:linear-gradient(100deg,#14141f 30%,#20202f 50%,#14141f 70%); background-size:200% 100%; animation:sh 1.2s linear infinite; }
+  .sk.big { height:210px; border-radius:24px; margin-top:6px; }
+  @keyframes sh { to { background-position:-200% 0 } }
+
+  /* dock */
+  #dock { position:fixed; left:0; right:0; bottom:0; z-index:12; display:none; background:rgba(14,14,24,.86); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+          border-top:1px solid var(--line); border-radius:22px 22px 0 0; box-shadow:0 -12px 40px #000a; }
+  #dock.on { display:block; }
+  #prog { height:4px; background:#ffffff18; cursor:pointer; border-radius:22px 22px 0 0; overflow:hidden; }
+  #prog b { display:block; height:100%; width:0; background:linear-gradient(90deg,var(--a1),var(--a2),var(--a3)); }
+  #video { width:100%; aspect-ratio:16/9; background:#000; }
+  #dock.big #video { max-width:560px; margin:10px auto 0; border-radius:14px; overflow:hidden; }
+  #bar { display:flex; align-items:center; gap:10px; padding:10px 12px; min-height:70px; }
+  #bar .meta { flex:1; min-width:0; }
+  #now { font-size:14.5px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  #nowA { font-size:12px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top:2px; }
+  .ctl { display:flex; align-items:center; gap:2px; }
+  .ctl button { background:none; border:0; color:var(--text); font-size:19px; width:38px; height:38px; cursor:pointer; border-radius:50%; }
+  .ctl button.active { background:#2cff9a30; }
+  .ctl .play { background:linear-gradient(135deg,var(--a1),#14c97c); color:#04150c; font-size:17px; box-shadow:0 6px 16px #2cff9a55; }
+  #dock.mini #video { position:absolute; left:12px; top:16px; width:108px; border-radius:10px; overflow:hidden; }
+  #dock.mini #bar { padding-left:134px; }
 </style>
 </head>
 <body>
+<div class="aurora"><i></i><i></i><i></i></div>
+
 <header>
-  <div class="top">
-    <h1>🎵 Mera Music</h1>
-    <div class="seg">
-      <button id="srcYT" class="on">Popular (YouTube)</button>
-      <button id="srcJM">Free (Jamendo)</button>
-    </div>
-    <button class="gear" id="gear" title="API keys">⚙</button>
-  </div>
+  <div class="brand"><div class="logo"><i></i><i></i><i></i></div><h1>Mera Music</h1></div>
   <form id="f">
-    <input type="text" id="q" placeholder="Gaana ya artist ka naam likho..." autocomplete="off">
+    <div class="sw"><span>🔎</span><input type="text" id="q" placeholder="Gaana ya artist ka naam..." autocomplete="off"></div>
     <button>Search</button>
   </form>
 </header>
 
 <main>
-  <h2>Aaj ke liye</h2>
-  <button class="daily" id="daily">✨ Aaj ki Playlist<small id="dailySub"></small></button>
+  <button class="hero" id="daily">
+    <div class="orb" id="dailyEm">🌅</div>
+    <small id="greet">Aaj ki playlist</small>
+    <b id="dailyT"></b>
+    <div class="wave" id="wave"></div>
+    <span class="cta">▶ Abhi chalao</span>
+  </button>
 
-  <h2>Playlists</h2>
-  <div class="chips" id="plChips"></div>
+  <h2>✨ Mood chuno</h2>
+  <div class="row" id="moods"></div>
 
-  <h2>Bhasha / Language</h2>
-  <div class="chips" id="langChips"></div>
+  <h2>🌍 Apni bhasha</h2>
+  <div class="row" id="langs"></div>
 
   <div id="status"></div>
-  <div id="list"></div>
+  <div id="feat"></div>
+  <div class="grid" id="list"></div>
 </main>
 
-<div id="video"><div id="yt"></div></div>
-
-<div id="bar">
-  <img id="cover" alt="">
-  <div class="meta"><div class="t" id="now">Kuch chalao bhai</div><div class="a" id="nowA"></div></div>
-  <div class="ctl">
-    <button id="prev">⏮</button>
-    <button id="pp" class="play">▶</button>
-    <button id="next">⏭</button>
-  </div>
-</div>
-<audio id="audio"></audio>
-
-<div id="modal">
-  <div class="box">
-    <h3>API keys (free)</h3>
-    <p>Keys sirf tumhare browser me save hoti hain. Dono free hain, card nahi lagta.</p>
-    <label>YouTube Data API key</label>
-    <input type="text" id="kYT" placeholder="AIza...">
-    <label>Jamendo client ID</label>
-    <input type="text" id="kJM" placeholder="e.g. 1a2b3c4d">
-    <div class="btns"><button id="kCancel">Band karo</button><button class="go" id="kSave">Save</button></div>
+<div id="dock" class="big">
+  <div id="prog"><b id="progB"></b></div>
+  <div id="video"><div id="yt"></div></div>
+  <div id="bar">
+    <div class="meta"><div id="now">Kuch chalao bhai</div><div id="nowA"></div></div>
+    <div class="ctl">
+      <button id="prev">⏮</button>
+      <button id="pp" class="play">⏸</button>
+      <button id="next">⏭</button>
+      <button id="wl" title="Screen on rakho">🔓</button>
+      <button id="size" title="Chhota / bada">⌄</button>
+    </div>
   </div>
 </div>
 
 <script>
 const $ = s => document.querySelector(s);
-const store = {
-  get(k){ try { return localStorage.getItem(k) || ''; } catch(e){ return ''; } },
-  set(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
-};
+const KEY = 'AIzaSyChU_iJtPOv6J00re4kEvp1wsFTJuctjl4';
 
-let source = store.get('src') || 'yt';
 let queue = [], idx = -1, ytPlayer = null, ytReady = false, pendingYT = null;
 
-const PLAYLISTS = [
-  { n:'🔥 Trending',  yt:'trending new songs this week', jm:'' , order:'popularity_week' },
-  { n:'🎬 Bollywood', yt:'latest bollywood songs', jm:'bollywood' },
-  { n:'😌 Chill',     yt:'chill relaxing hindi songs', jm:'chill' },
-  { n:'💪 Workout',   yt:'workout gym motivation songs', jm:'workout' },
-  { n:'💔 Sad',       yt:'sad hindi songs', jm:'sad' },
-  { n:'💕 Romantic',  yt:'romantic hindi songs', jm:'romantic' },
-  { n:'🎉 Party',     yt:'party dance songs', jm:'party' },
-  { n:'🧘 Lo-fi',     yt:'lofi hindi songs', jm:'lofi' },
+const MOODS = [
+  ['🔥','Trending','trending new songs this week','#ff512f,#dd2476'],
+  ['🆕','Naye Gaane','new songs 2026','#7f00ff,#e100ff'],
+  ['🎬','Bollywood','latest bollywood songs','#f7971e,#ff5e62'],
+  ['😄','Happy','happy upbeat hindi songs','#f6d365,#fda085'],
+  ['😌','Chill','chill relaxing hindi songs','#43cea2,#185a9d'],
+  ['💕','Romantic','romantic hindi songs','#ff6a88,#c3317b'],
+  ['💔','Sad','sad hindi songs','#4b6cb7,#182848'],
+  ['🎉','Party','party dance songs','#ee0979,#ff6a00'],
+  ['💪','Workout','workout gym motivation songs','#11998e,#38ef7d'],
+  ['🧘','Lo-fi','lofi hindi songs','#654ea3,#eaafc8'],
 ];
 const LANGS = [
-  ['Hindi','hindi'],['Bhojpuri','bhojpuri'],['Marathi','marathi'],['Telugu','telugu'],
-  ['Bengali','bengali'],['Tamil','tamil'],['Punjabi','punjabi'],['Malayalam','malayalam'],
-  ['Kannada','kannada'],['Gujarati','gujarati'],['English','english'],['K-pop','kpop'],['Spanish','spanish']
+  ['हि','Hindi','hindi'],['भो','Bhojpuri','bhojpuri'],['म','Marathi','marathi'],['తె','Telugu','telugu'],
+  ['বা','Bengali','bengali'],['த','Tamil','tamil'],['ਪੰ','Punjabi','punjabi'],['മ','Malayalam','malayalam'],
+  ['ಕ','Kannada','kannada'],['ગુ','Gujarati','gujarati'],['En','English','english'],['K','K-pop','kpop'],['Es','Spanish','spanish']
 ];
 
 function dailyInfo(){
   const h = new Date().getHours();
-  if (h < 5)  return { t:'Raat ki neend wali', yt:'night calm songs hindi', jm:'ambient' };
-  if (h < 12) return { t:'Subah ki fresh energy', yt:'morning fresh energy songs hindi', jm:'happy' };
-  if (h < 17) return { t:'Dopahar ka focus', yt:'focus lofi study songs', jm:'lofi' };
-  if (h < 21) return { t:'Shaam ke hits', yt:'evening latest hit songs hindi', jm:'pop' };
-  return { t:'Raat ka chill', yt:'late night chill hindi songs', jm:'chill' };
+  if (h < 5)  return { em:'🌌', g:'Shubh Raatri',  t:'Raat ki neend wali playlist', q:'night calm songs hindi' };
+  if (h < 12) return { em:'🌅', g:'Shubh Prabhat', t:'Subah ki fresh energy',      q:'morning fresh energy songs hindi' };
+  if (h < 17) return { em:'☀️', g:'Shubh Dopahar', t:'Dopahar ka focus mode',      q:'focus lofi study songs' };
+  if (h < 21) return { em:'🌇', g:'Shubh Sandhya', t:'Shaam ke hit gaane',         q:'evening latest hit songs hindi' };
+  return { em:'🌙', g:'Shubh Raatri', t:'Raat ka chill', q:'late night chill hindi songs' };
 }
 
 function decode(s){ return new DOMParser().parseFromString(s,'text/html').documentElement.textContent; }
 function status(m){ $('#status').textContent = m; }
 
-function setSource(s){
-  source = s; store.set('src', s);
-  $('#srcYT').classList.toggle('on', s==='yt');
-  $('#srcJM').classList.toggle('on', s==='jm');
-}
-
 async function searchYT(q){
-  const key = store.get('kYT');
-  if (!key) { openModal(); throw new Error('Pehle YouTube API key daalo (⚙ button).'); }
-  const u = 'https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&videoCategoryId=10&videoEmbeddable=true&maxResults=25&q='
-    + encodeURIComponent(q) + '&key=' + encodeURIComponent(key);
+  const u = 'https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&videoCategoryId=10&videoEmbeddable=true&maxResults=24&q='
+    + encodeURIComponent(q) + '&key=' + encodeURIComponent(KEY);
   const r = await fetch(u); const d = await r.json();
-  if (d.error) throw new Error('YouTube: ' + d.error.message);
+  if (d.error) {
+    const m = (d.error.message || '').toLowerCase();
+    if (m.includes('quota')) throw new Error('Aaj ki search limit khatam ho gayi. Kal phir try karna.');
+    throw new Error('Search nahi ho paayi. Thodi der baad try karo.');
+  }
   return (d.items||[]).map(i => ({
-    src:'yt', id:i.id.videoId, title:decode(i.snippet.title), artist:decode(i.snippet.channelTitle),
+    id:i.id.videoId, title:decode(i.snippet.title), artist:decode(i.snippet.channelTitle),
     thumb:(i.snippet.thumbnails.medium||i.snippet.thumbnails.default).url
   }));
 }
 
-async function searchJM(q, order){
-  const id = store.get('kJM');
-  if (!id) { openModal(); throw new Error('Pehle Jamendo client ID daalo (⚙ button).'); }
-  let u = 'https://api.jamendo.com/v3.0/tracks/?format=json&limit=25&audioformat=mp32&include=musicinfo&client_id=' + encodeURIComponent(id);
-  if (q) u += '&search=' + encodeURIComponent(q);
-  u += '&order=' + (order || 'popularity_total');
-  const r = await fetch(u); const d = await r.json();
-  if (d.headers && d.headers.status === 'failed') throw new Error('Jamendo: ' + d.headers.error_message);
-  return (d.results||[]).filter(t => t.audio).map(t => ({
-    src:'jm', url:t.audio, title:t.name, artist:t.artist_name, thumb:t.image || t.album_image
-  }));
+function skeleton(){
+  $('#feat').innerHTML = '<div class="sk big"></div>';
+  $('#list').innerHTML = '<div class="sk"></div>'.repeat(6);
 }
 
-async function run(ytQ, jmQ, order){
-  status('Dhoondh raha hoon...');
-  $('#list').innerHTML = '';
+async function run(q, label){
+  status(label ? label : 'Dhoondh raha hoon...');
+  skeleton();
+  window.scrollTo({ top: $('#status').offsetTop - 90, behavior:'smooth' });
   try {
-    const items = source === 'yt' ? await searchYT(ytQ) : await searchJM(jmQ, order);
+    const items = await searchYT(q);
     queue = items; idx = -1;
-    if (!items.length) { status('Kuch nahi mila. Doosra naam try karo.'); return; }
-    status(items.length + ' gaane mile');
+    if (!items.length) { $('#feat').innerHTML=''; $('#list').innerHTML=''; status('Kuch nahi mila. Doosra naam try karo.'); return; }
+    status((label ? label + ' • ' : '') + items.length + ' gaane');
     render();
-  } catch(e){ status(e.message); }
+  } catch(e){ $('#feat').innerHTML=''; $('#list').innerHTML=''; status(e.message); }
 }
+
+function mk(tag, cls, txt){ const e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; }
 
 function render(){
-  const list = $('#list'); list.innerHTML = '';
+  const feat = $('#feat'), list = $('#list'); feat.innerHTML = ''; list.innerHTML = '';
   queue.forEach((t,i) => {
-    const row = document.createElement('div');
-    row.className = 'row' + (i===idx ? ' now' : '');
-    const img = document.createElement('img'); img.src = t.thumb || ''; img.loading = 'lazy';
-    const meta = document.createElement('div'); meta.className = 'meta';
-    const a = document.createElement('div'); a.className = 't'; a.textContent = t.title;
-    const b = document.createElement('div'); b.className = 'a'; b.textContent = t.artist;
-    meta.append(a,b); row.append(img,meta);
-    row.onclick = () => play(i);
-    list.append(row);
+    if (i === 0) {
+      const f = mk('div','feat'); f.dataset.i = 0;
+      const img = mk('img'); img.src = t.thumb; img.alt = '';
+      const txt = mk('div','txt');
+      txt.append(mk('div','tag','Top pick'), mk('div','t',t.title), mk('div','a',t.artist));
+      f.append(img, txt, mk('div','pbtn','▶'));
+      f.onclick = () => play(0);
+      feat.append(f);
+      return;
+    }
+    const el = mk('div','tile'); el.dataset.i = i; el.style.animationDelay = (Math.min(i,12) * 40) + 'ms';
+    const im = mk('div','im'); const img = mk('img'); img.src = t.thumb; img.loading = 'lazy'; img.alt = '';
+    im.append(img, mk('div','pl','▶'));
+    const info = mk('div','info');
+    info.append(mk('div','t',t.title), mk('div','a',t.artist));
+    el.append(im, info);
+    el.onclick = () => play(i);
+    list.append(el);
   });
-}
-
-function stopAll(){
-  $('#audio').pause();
-  if (ytPlayer && ytReady) { try { ytPlayer.stopVideo(); } catch(e){} }
 }
 
 function play(i){
   if (i < 0 || i >= queue.length) return;
   idx = i; const t = queue[i];
-  stopAll();
+  $('#dock').classList.add('on');
   $('#now').textContent = t.title; $('#nowA').textContent = t.artist;
-  $('#cover').src = t.thumb || '';
-  document.querySelectorAll('.row').forEach((r,k) => r.classList.toggle('now', k===i));
-  if (t.src === 'yt') {
-    $('#video').classList.add('show');
-    if (ytReady) ytPlayer.loadVideoById(t.id); else pendingYT = t.id;
-  } else {
-    $('#video').classList.remove('show');
-    const a = $('#audio'); a.src = t.url; a.play().catch(()=>{});
-  }
-  setPP(true);
+  document.querySelectorAll('.tile,.feat').forEach(r => r.classList.toggle('now', +r.dataset.i === i));
+  if (ytReady) ytPlayer.loadVideoById(t.id); else pendingYT = t.id;
+  setMedia(t); setPP(true);
+}
+
+function setMedia(t){
+  if (!('mediaSession' in navigator)) return;
+  try {
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title:t.title, artist:t.artist, artwork:[{ src:t.thumb, sizes:'320x180' }]
+    });
+    navigator.mediaSession.setActionHandler('play', () => $('#pp').click());
+    navigator.mediaSession.setActionHandler('pause', () => $('#pp').click());
+    navigator.mediaSession.setActionHandler('nexttrack', next);
+    navigator.mediaSession.setActionHandler('previoustrack', prev);
+  } catch(e){}
 }
 
 function setPP(playing){ $('#pp').textContent = playing ? '⏸' : '▶'; }
@@ -235,14 +288,44 @@ function next(){ if (queue.length) play((idx+1) % queue.length); }
 function prev(){ if (queue.length) play((idx-1+queue.length) % queue.length); }
 
 $('#next').onclick = next; $('#prev').onclick = prev;
-$('#audio').onended = next;
-$('#audio').onplay = () => setPP(true);
-$('#audio').onpause = () => setPP(false);
 $('#pp').onclick = () => {
-  const t = queue[idx]; if (!t) { if (queue.length) play(0); return; }
-  if (t.src === 'jm') { const a = $('#audio'); a.paused ? a.play() : a.pause(); }
-  else if (ytReady) { ytPlayer.getPlayerState() === 1 ? ytPlayer.pauseVideo() : ytPlayer.playVideo(); }
+  if (idx < 0) { if (queue.length) play(0); return; }
+  if (ytReady) { ytPlayer.getPlayerState() === 1 ? ytPlayer.pauseVideo() : ytPlayer.playVideo(); }
 };
+$('#size').onclick = () => {
+  const d = $('#dock'), big = d.classList.contains('big');
+  d.classList.toggle('big', !big); d.classList.toggle('mini', big);
+  $('#size').textContent = big ? '⌃' : '⌄';
+};
+$('#prog').onclick = e => {
+  if (!ytReady || idx < 0) return;
+  const r = e.currentTarget.getBoundingClientRect();
+  const dur = ytPlayer.getDuration() || 0;
+  ytPlayer.seekTo(dur * ((e.clientX - r.left) / r.width), true);
+};
+setInterval(() => {
+  if (!ytReady || idx < 0) return;
+  try {
+    const dur = ytPlayer.getDuration() || 0, cur = ytPlayer.getCurrentTime() || 0;
+    $('#progB').style.width = dur ? (cur / dur * 100) + '%' : '0';
+  } catch(e){}
+}, 500);
+new ResizeObserver(() => {
+  const d = $('#dock');
+  document.body.style.paddingBottom = d.classList.contains('on') ? (d.offsetHeight + 20) + 'px' : '24px';
+}).observe($('#dock'));
+
+// Screen on rakho (wake lock)
+let wl = null, wlOn = false;
+async function wlAcquire(){ try { if ('wakeLock' in navigator) wl = await navigator.wakeLock.request('screen'); } catch(e){} }
+$('#wl').onclick = async () => {
+  if (!('wakeLock' in navigator)) { status('Is browser me screen-on option nahi hai.'); return; }
+  wlOn = !wlOn;
+  if (wlOn) await wlAcquire(); else { try { if (wl) await wl.release(); } catch(e){} wl = null; }
+  $('#wl').textContent = wlOn ? '🔒' : '🔓';
+  $('#wl').classList.toggle('active', wlOn);
+};
+document.addEventListener('visibilitychange', () => { if (wlOn && document.visibilityState === 'visible') wlAcquire(); });
 
 // YouTube IFrame API
 const s = document.createElement('script'); s.src = 'https://www.youtube.com/iframe_api'; document.head.append(s);
@@ -258,33 +341,27 @@ window.onYouTubeIframeAPIReady = () => {
 };
 
 // UI wiring
-$('#f').onsubmit = e => { e.preventDefault(); const q = $('#q').value.trim(); if (q) run(q + ' song', q); };
-$('#srcYT').onclick = () => setSource('yt');
-$('#srcJM').onclick = () => setSource('jm');
+$('#f').onsubmit = e => { e.preventDefault(); const q = $('#q').value.trim(); if (q) { run(q + ' song'); $('#q').blur(); } };
 
-PLAYLISTS.forEach(p => {
-  const b = document.createElement('button'); b.className = 'chip'; b.textContent = p.n;
-  b.onclick = () => run(p.yt, p.jm, p.order);
-  $('#plChips').append(b);
+MOODS.forEach(([em,n,q,g]) => {
+  const b = mk('button','mood'); const [c1,c2] = g.split(',');
+  b.style.background = `linear-gradient(135deg,${c1},${c2})`;
+  b.append(mk('span','e',em), mk('span','n',n));
+  b.onclick = () => run(q, em + ' ' + n);
+  $('#moods').append(b);
 });
-LANGS.forEach(([n,k]) => {
-  const b = document.createElement('button'); b.className = 'chip'; b.textContent = n;
-  b.onclick = () => run('latest ' + k + ' songs', k);
-  $('#langChips').append(b);
+LANGS.forEach(([sc,n,k],i) => {
+  const b = mk('button','lang'); const h = (i*53 + 260) % 360;
+  const u = mk('u',null,sc); u.style.background = `linear-gradient(135deg,hsl(${h} 70% 50%),hsl(${(h+50)%360} 70% 40%))`;
+  b.append(u, document.createTextNode(n));
+  b.onclick = () => run('latest ' + k + ' songs', n);
+  $('#langs').append(b);
 });
 
-const d = dailyInfo();
-$('#dailySub').textContent = d.t + ' • tap karke chalao';
-$('#daily').onclick = () => { const x = dailyInfo(); run(x.yt, x.jm); };
-
-// Keys modal
-function openModal(){ $('#kYT').value = store.get('kYT'); $('#kJM').value = store.get('kJM'); $('#modal').classList.add('show'); }
-$('#gear').onclick = openModal;
-$('#kCancel').onclick = () => $('#modal').classList.remove('show');
-$('#kSave').onclick = () => { store.set('kYT', $('#kYT').value.trim()); store.set('kJM', $('#kJM').value.trim()); $('#modal').classList.remove('show'); status('Keys save ho gayi. Ab kuch search karo.'); };
-
-setSource(source);
-if (!store.get('kYT') && !store.get('kJM')) status('Shuru karne ke liye ⚙ dabao aur API key daalo.');
+const d0 = dailyInfo();
+$('#dailyEm').textContent = d0.em; $('#greet').textContent = d0.g; $('#dailyT').textContent = d0.t;
+for (let i = 0; i < 28; i++) { const w = mk('i'); w.style.animationDelay = (i * 0.07) + 's'; w.style.animationDuration = (0.8 + (i % 5) * 0.15) + 's'; $('#wave').append(w); }
+$('#daily').onclick = () => { const x = dailyInfo(); run(x.q, x.em + ' ' + x.t); };
 </script>
 </body>
 </html>
